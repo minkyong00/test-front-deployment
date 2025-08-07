@@ -1,7 +1,7 @@
 // 경찰 카테고리 버튼 클릭 시 지도에 표시되는 마커 JS
 
 // 이미지 주소 
-const markerimageSrc = "../css/assets/policeLogo.png";
+const markerimageSrc = "css/assets/policeLogo.png";
 
 // 데이터 저장 배열
 let policeList = [];
@@ -9,6 +9,9 @@ let policeLocationsList = []; // 주소
 let positionList = []; // 위도+경도 
 let nameList = []; // 파출소 이름
 let policeMarkers = []; // 마커 객체 배열
+
+// 데이터 표시 여부 >> 초기값 안보여줌
+let isDataDisplay = false;
 
 // 데이터 받아오기
 async function getPoliceApi() {
@@ -19,7 +22,7 @@ async function getPoliceApi() {
                 "Accept": "application/json",
                 "Content-Type": "application/json"
             }
-            
+
         });
 
         const data = await res.json();
@@ -86,11 +89,21 @@ function createPoliceMarkers() {
     }
 }
 
+
 // 마커 지도 표시 함수
-function setPoliceMarkers(map) {
+function showPoliceMarkers(map) {
     for (let i = 0; i < policeMarkers.length; i++) {
         policeMarkers[i].setMap(map);
     }
+    isDataDisplay = true;
+}
+
+// 마커 지도 숨김 함수
+function hidePoliceMarkers() {
+    for (let i = 0; i < policeMarkers.length; i++) {
+        policeMarkers[i].setMap(null);
+    }
+    isDataDisplay = false;
 }
 
 // 카테고리 변경 함수
@@ -101,21 +114,21 @@ function changeMarker(type) {
     if (type === 'police') {
         cctv.className = '';
         police.className = 'menu_selected';
-
-        // setCoffeeMarkers(null);
-        // setStoreMarkers(null);
-        setPoliceMarkers(map); // 경찰 마커 표시
     }
 }
 
-// 버튼 클릭 시 실행
+
+// 버튼 클릭 시 실행 (토글 방식)
 document.getElementById("police").addEventListener("click", async () => {
-    await getPoliceApi();         // 데이터 받아오기
-    createPoliceMarkers();        // 마커 생성
-    changeMarker('police');       // 마커 표시
+    changeMarker('police');
+
+    if (!isDataDisplay) {
+        await getPoliceApi();         // 데이터 받아오기
+        createPoliceMarkers();        // 마커 생성
+
+        showPoliceMarkers(map);           // 마커 표시
+    } else {
+        hidePoliceMarkers();              // 마커 숨김
+    }
 });
-
-
-// 이미지하고 이미지크기 수정 
-// 카테고리 클릭 안된상태로 시작 
 
